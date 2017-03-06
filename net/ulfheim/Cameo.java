@@ -22,7 +22,7 @@ public class Cameo {
         image = ImageIO.read(new File(filename));
         xCenter = image.getWidth()/2;
         yCenter = image.getHeight()/2;
-        double xAxis = image.getWidth() * 0.25;
+        double xAxis = image.getWidth() * 0.3;
         double yAxis = image.getHeight() * 0.4;
         xAxisSq = xAxis * xAxis;
         yAxisSq = yAxis * yAxis;
@@ -46,7 +46,7 @@ public class Cameo {
         }
     }
 
-    public static double shadowSpread = 0.88;
+    public static double shadowSpread = 0.80;
 
     public void addDropShadow() {
         double v, level;
@@ -56,11 +56,11 @@ public class Cameo {
                 v = ellipseVal(x, y);
                 if (v < 1 && v > shadowSpread) {
                     level = (1-v) / (1-shadowSpread);
-                    mask = (int) (255 * level);
+                    mask = (int) (64 * level);
                     if (mask < 0) {
                         mask = 0;
                     }
-                    image.setRGB(x, y, mask << 24 | 0x7f7f7f);
+                    image.setRGB(x, y, mask << 24);
                 }
             }
         }
