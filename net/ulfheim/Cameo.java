@@ -2,6 +2,7 @@ package net.ulfheim;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 
@@ -22,8 +23,8 @@ public class Cameo {
         image = ImageIO.read(new File(filename));
         xCenter = image.getWidth()/2;
         yCenter = image.getHeight()/2;
-        double xAxis = image.getWidth() * 0.3;
-        double yAxis = image.getHeight() * 0.4;
+        double xAxis = image.getWidth() * 0.35;
+        double yAxis = image.getHeight() * 0.43;
         xAxisSq = xAxis * xAxis;
         yAxisSq = yAxis * yAxis;
     }
@@ -46,17 +47,36 @@ public class Cameo {
         }
     }
 
-    public static double shadowSpread = 0.80;
+    public static int frameColor = new Color(0, 0x20, 0).getRGB();
+    public static double frameLimit = 1.1;
 
-    public void addDropShadow() {
+    public void addFrame() {
         double v, level;
         int mask;
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
                 v = ellipseVal(x, y);
-                if (v < 1 && v > shadowSpread) {
-                    level = (1-v) / (1-shadowSpread);
-                    mask = (int) (64 * level);
+                if (v > 1 && v < frameLimit) {
+                    image.setRGB(x, y, frameColor);
+                }
+            }
+        }
+    }
+
+    public static double shadowLimit = 1.3;
+    public static int shadowIntensity = 128;
+
+    public void addDropShadow() {
+        double v, level;
+        double start = frameLimit;
+        double stop = shadowLimit;
+        int mask;
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                v = ellipseVal(x, y);
+                if (v > start && v < stop) {
+                    level = 1 - (start-v) / (start-stop);
+                    mask = (int) (shadowIntensity * level);
                     if (mask < 0) {
                         mask = 0;
                     }
@@ -85,6 +105,7 @@ public class Cameo {
             System.exit(1);
         }
         cameo.maskEllipse();
+        cameo.addFrame();
         cameo.addDropShadow();
         try {
             cameo.writePng(args[1]);
